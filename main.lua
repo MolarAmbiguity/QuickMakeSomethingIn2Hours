@@ -29,14 +29,14 @@ function love.update(dt)
   end
   
   if rainTimer < 0 then
-    lastRain = newRain
+    --lastRain = newRain
     rainTimer = rainTimerMax
     newRain = { x = math.random(0, love.window.getWidth()), y = -50, img = rainImg}
-    if lastRain.x < newRain.x + 50 and lastRain.x > newRain.x - 50 then
+   -- if lastRain.x < newRain.x + 50 and lastRain.x > newRain.x - 50 then
       newRain.x = - 100 
-    end
+
     table.insert(rain, newRain)
-  end
+end
   
   for i, rain in ipairs(rain) do
     Gravity(rain, 1000, speed, dt)
