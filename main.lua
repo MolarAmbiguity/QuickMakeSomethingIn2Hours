@@ -1,98 +1,92 @@
--- Made in 2 hours, copied a lot from tutorials by Jack Robbers
-rotation = 0
-createEnemyTimerMax = 0.4
-createEnemyTimer = createEnemyTimerMax
-
-computer = { x = 200, y = 710, speed = 300, img = nil }
-love.graphics.setBackgroundColor(255,255,255)
-enemyImg= nil
-enemies = {}
-
-isAlive = true
-score = 0
-
-function CheckCollision(x1,y1,w1,h1, x2,y2,w2,h2)
-  return x1 < x2+w2 and
-         x2 < x1+w1 and
-         y1 < y2+h2 and
-         y2 < y1+h1
-end
+require 'func'
 
 function love.load(arg)
-	computer.img = love.graphics.newImage('assets/computer.png')
-	enemyImg = love.graphics.newImage('assets/clock.png')
+  Setup()
+  Reset()
 end
-
+ 
 function love.update(dt)
-	score = score + 1
-	if love.keyboard.isDown('escape') then
-		love.event.push('quit')
-	end
-	if love.keyboard.isDown('left','a') then
-		if computer.x > 0 then
-			computer.x = computer.x - (computer.speed*dt)
-		end
-	elseif love.keyboard.isDown('right','d') then
-		if computer.x < (love.graphics.getWidth() - computer.img:getWidth()) then
-			computer.x = computer.x + (computer.speed*dt)
-		end
-	end
-	if not isAlive and love.keyboard.isDown('r') then
-		-- remove all our bullets and enemies from screen
-		bullets = {}
-		enemies = {}
-
-		-- reset timers
-		canShootTimer = canShootTimerMax
-		createEnemyTimer = createEnemyTimerMax
-
-		-- move computer back to default position
-		computer.x = 50
-		computer.y = 710
-
-		-- reset our game state
-		score = 0
-		isAlive = true
-	end
-
-	createEnemyTimer = createEnemyTimer - (1 * dt)
-	if createEnemyTimer < 0 then
-		createEnemyTimer = createEnemyTimerMax
-
-		-- Create an enemy
-		randomNumber = math.random(10, love.graphics.getWidth() - 10)
-		newEnemy = { x = randomNumber, y = -10, img = enemyImg }
-		table.insert(enemies, newEnemy)
-	end
-	for i, enemy in ipairs(enemies) do
-	enemy.y = enemy.y + (100 * dt)
-
-	if enemy.y > 850 then -- remove enemies when they pass off the screen
-		table.remove(enemies, i)
-	end
-	end
-	for i, enemy in ipairs(enemies) do
-		if CheckCollision(enemy.x, enemy.y, enemy.img:getWidth(), enemy.img:getHeight(), computer.x, computer.y, computer.img:getWidth(), computer.img:getHeight()) 
-		and isAlive then
-			table.remove(enemies, i)
-			isAlive = false
-		end
-	end
+  score = score + 1
+  speed = speed + dt / 20
+  rainTimer = rainTimer - dt
+  rainTimerMax = rainTimerMax - dt / 100
+  
+  Gravity(umbrella, 0, speed, dt)
+  
+  if love.keyboard.isDown('escape') then
+		love.event.quit()
+  end
+  
+  if love.keyboard.isDown('left','a') then 
+    char.x = char.x - 5
+  elseif love.keyboard.isDown('right','d') then 
+    char.x = char.x + 5
+  end
+      
+  if Collide(char, umbrella, SCALE, SCALE) then
+    char.item = 'umbrella'
+    umbrella.timer = umbrella.timerMax
+  end
+  
+  if rainTimer < 0 then
+    lastRain = newRain
+    rainTimer = rainTimerMax
+    newRain = { x = math.random(0, love.window.getWidth()), y = -50, img = rainImg}
+    if lastRain.x < newRain.x + 50 and lastRain.x > newRain.x - 50 then
+      newRain.x = - 100 
+    end
+    table.insert(rain, newRain)
+  end
+  
+  for i, rain in ipairs(rain) do
+    Gravity(rain, 1000, speed, dt)
+    if char.item == 'umbrella' then
+      umbrella.timer = umbrella.timer - dt
+      if Collide(char, rain, 7, 10) then
+        rain.y = 2000
+        umbrella.health = umbrella.health - 1
+      end
+    else
+      if Collide(char, rain, 3, 3) then
+        char.health = char.health - 1
+        alive = false
+      end
+    end
+  end
+  
+  if umbrella.health < 0 and char.item == 'umbrella' then
+    char.item = 'none'
+    umbrella.y = -1000
+    UmbrellaSpawn(umbrella)
+    umbrella.health = 5
+  end
+  
+  if alive == false then
+    if love.keyboard.isDown('r') then
+      Reset()
+    end
+  end
 end
 
 function love.draw(dt)
-	love.graphics.setColor(0, 255, 0, 255)
-	love.graphics.print(score, 0, 0, 0, 2, 2)
-	love.graphics.setColor(0,0,0)
-	if isAlive then
-		love.graphics.draw(computer.img, computer.x, computer.y, 0 , 3, 3)
-	else
-		love.graphics.print("Press 'R' to restart", love.graphics:getWidth()/2-50, love.graphics:getHeight()/2-10)
-	end
-
-	for i, enemy in ipairs(enemies) do
-		rotation = rotation + 0.001
-		love.graphics.draw(enemy.img, enemy.x, enemy.y, rotation)
-	end
-
+--  love.graphics.print(rainTimer, 0, 600)
+  --love.graphics.print(rainTimerMax, 0,  500)
+  --love.graphics.print(love.timer.getFPS())
+  if alive == true then
+    love.graphics.draw(char.img, char.x, char.y, 0, SCALE)
+    love.graphics.print('score is  ' .. score, 0, 0, 0, 3)
+      
+    if char.item == 'umbrella' then
+       love.graphics.draw(umbrella.img, char.x - 25, char.y - 120, 0, SCALE)
+    else
+      love.graphics.draw(umbrella.img, umbrella.x, umbrella.y, 0, SCALE)
+    end
+    
+    for i, rain in ipairs(rain) do
+      love.graphics.draw(rainImg, rain.x, rain.y, 0, SCALE)
+    end
+  else
+    love.graphics.print('Press R to Reset!', 50,love.window.getHeight()- 200,0,5)
+    love.graphics.print('DED', 0, 0, 0, 30)
+  end
 end
