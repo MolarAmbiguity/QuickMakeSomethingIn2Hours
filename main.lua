@@ -3,6 +3,8 @@ rotation = 0
 createEnemyTimerMax = 0.4
 createEnemyTimer = createEnemyTimerMax
 
+love.graphics.setDefaultFilter('nearest')
+
 computer = { x = 200, y = 710, speed = 300, img = nil }
 love.graphics.setBackgroundColor(255,255,255)
 enemyImg= nil
@@ -24,7 +26,9 @@ function love.load(arg)
 end
 
 function love.update(dt)
-	score = score + 1
+  if isAlive then
+    score = score + 1
+  end
 	if love.keyboard.isDown('escape') then
 		love.event.push('quit')
 	end
@@ -72,7 +76,7 @@ function love.update(dt)
 	end
 	end
 	for i, enemy in ipairs(enemies) do
-		if CheckCollision(enemy.x, enemy.y, enemy.img:getWidth(), enemy.img:getHeight(), computer.x, computer.y, computer.img:getWidth(), computer.img:getHeight()) 
+		if CheckCollision(enemy.x, enemy.y, enemy.img:getWidth(), enemy.img:getHeight(), computer.x, computer.y, computer.img:getWidth() * 3, computer.img:getHeight() * 3)
 		and isAlive then
 			table.remove(enemies, i)
 			isAlive = false
@@ -85,7 +89,7 @@ function love.draw(dt)
 	love.graphics.print(score, 0, 0, 0, 2, 2)
 	love.graphics.setColor(0,0,0)
 	if isAlive then
-		love.graphics.draw(computer.img, computer.x, computer.y, 0 , 3, 3)
+		love.graphics.draw(computer.img, computer.x, computer.y, 0, 3, 3)
 	else
 		love.graphics.print("Press 'R' to restart", love.graphics:getWidth()/2-50, love.graphics:getHeight()/2-10)
 	end
