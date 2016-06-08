@@ -1,4 +1,5 @@
 # QuickMakeSomethingIn2Hours
+![Game Screenshot](assets/screen.png)
 
 Made for IntoIT Hackathon 2015
 
@@ -18,4 +19,4 @@ Then I came back to the Hackathon and made this.
 
 I followed [this](http://www.osmstudios.com/tutorials/your-first-love2d-game-in-200-lines-part-1-of-3) tutorial:  and made a quite a few modifications. This was my first time using love and it was actually really fun.
 
-Made with Love, follow [this](https://love2d.org/wiki/Getting_Started) to run it 
+Made with Love, follow [this](https://love2d.org/wiki/Getting_Started) to run it
